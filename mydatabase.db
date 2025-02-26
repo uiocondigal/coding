@@ -1,0 +1,150 @@
+
+from flask import Flask, render_template
+from flask_ngrok import run_with_ngrok
+
+# Planet info
+planet_info = {
+    "mercury": {
+        "position": 1,
+        "mass": "3.3011×10^23 kg",
+        "radius": "2,439.7 km",
+        "description": "Mercury is the smallest planet in the Solar System and closest to the Sun.",
+        "photo": "https://solarsystem.nasa.gov/system/feature_items/images/18_mercury_new.png"
+    },
+    "venus": {
+        "position": 2,
+        "mass": "4.8675×10^24 kg",
+        "radius": "6,051.8 km",
+        "description": "Venus has a thick atmosphere and is the hottest planet in the solar system.",
+        "photo": "https://solarsystem.nasa.gov/system/feature_items/images/27_venus_jg.png"
+    },
+    "earth": {
+        "position": 3,
+        "mass": "5.97237×10^24 kg",
+        "radius": "6,371 km",
+        "description": "Earth is the third planet from the Sun and the only astronomical object known to harbor life.",
+        "photo": "https://solarsystem.nasa.gov/system/feature_items/images/17_earth.png"
+    },
+    "mars": {
+        "position": 4,
+        "mass": "6.4171×10^23 kg",
+        "radius": "3,389.5 km",
+        "description": "Mars is the fourth planet from the Sun, often referred to as the Red Planet.",
+        "photo": "https://solarsystem.nasa.gov/system/feature_items/images/19_mars.png"
+    },
+    "jupiter": {
+        "position": 5,
+        "mass": "1.8982×10^27 kg",
+        "radius": "69,911 km",
+        "description": "Jupiter is the largest planet in the Solar System and is known for its Great Red Spot.",
+        "photo": "https://solarsystem.nasa.gov/system/feature_items/images/16_jupiter_new.png"
+    },
+    "saturn": {
+        "position": 6,
+        "mass": "5.6834×10^26 kg",
+        "radius": "58,232 km",
+        "description": "Saturn is known for its prominent ring system and is the second-largest planet.",
+        "photo": "https://solarsystem.nasa.gov/system/feature_items/images/28_saturn.png"
+    },
+    "uranus": {
+        "position": 7,
+        "mass": "8.6810×10^25 kg",
+        "radius": "25,362 km",
+        "description": "Uranus is a gas giant with a blue-green color due to methane in its atmosphere.",
+        "photo": "https://solarsystem.nasa.gov/system/feature_items/images/29_uranus.png"
+    },
+    "neptune": {
+        "position": 8,
+        "mass": "1.02413×10^26 kg",
+        "radius": "24,622 km",
+        "description": "Neptune is the farthest known planet in the Solar System and has strong winds.",
+        "photo": "https://solarsystem.nasa.gov/system/feature_items/images/30_neptune.png"
+    }
+}
+
+# Flask app
+app = Flask(__name__)
+run_with_ngrok(app)
+
+@app.route('/')
+def home():
+    return render_template('index.html', planets=planet_info)
+
+@app.route('/planet/<name>')
+def planet(name):
+    planet = planet_info.get(name.lower())
+    if planet:
+        return render_template('planet.html', planet_name=name.capitalize(), planet=planet)
+    else:
+        return "<h1>Planet not found</h1>"
+
+if __name__ == "__main__":
+    app.run()
+# Create index.html template
+index_html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8ff; text-align: center; }
+        h1 { color: #333; }
+        .planet-list { display: flex; justify-content: center; flex-wrap: wrap; }
+        .planet { margin: 10px; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .planet img { max-width: 100px; }
+        .planet a { text-decoration: none; color: #0066cc; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Solar System</h1>
+    <div class="planet-list">
+        {% for planet, info in planets.items() %}
+        <div class="planet">
+            <img src="{{ info.photo }}" alt="{{ planet }}">
+            <h2>{{ planet.capitalize() }}</h2>
+            <a href="/planet/{{ planet }}">Learn More</a>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+"""
+
+# Save index.html
+with open('templates/index.html', 'w') as file:
+    file.write(index_html)
+# Create planet.html template
+planet_html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ planet_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8ff; text-align: center; }
+        h1 { color: #333; }
+        .planet-info { margin-top: 20px; }
+        img { max-width: 200px; }
+        a { text-decoration: none; color: #0066cc; }
+    </style>
+</head>
+<body>
+    <h1>{{ planet_name }}</h1>
+    <div class="planet-info">
+        <img src="{{ planet.photo }}" alt="{{ planet_name }}">
+        <p><strong>Position from the Sun:</strong> {{ planet.position }}</p>
+        <p><strong>Mass:</strong> {{ planet.mass }}</p>
+        <p><strong>Radius:</strong> {{ planet.radius }}</p>
+        <p>{{ planet.description }}</p>
+    </div>
+    <a href="/">Back to all planets</a>
+</body>
+</html>
+"""
+
+# Save planet.html
+with open('templates/planet.html', 'w') as file:
+    file.write(planet_html)
